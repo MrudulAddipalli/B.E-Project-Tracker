@@ -20,7 +20,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 
 
 Route::get('/', function () {
-    return redirect('/home');
+    return view('welcome');
 });
 
 //for student and teacher both
