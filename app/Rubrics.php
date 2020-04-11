@@ -8,6 +8,10 @@ class Rubrics extends Model
 {
     public $timestamps = false;
     
+    protected $fillable = [
+        'project_id',
+    ];
+    
     protected $table = 'rubrics';
     protected $primaryKey = 'id';
 }
