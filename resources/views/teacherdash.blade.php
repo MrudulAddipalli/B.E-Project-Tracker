@@ -86,7 +86,7 @@
       <td><a href="{{ url('/') }}/report/{{ $p->id }}"  class="btn btn-danger">  <span class="glyphicon glyphicon-th-list"></span>Report</a></td>
       <td><a href="{{ url('/') }}/rubrics/{{ $p->id }}"  class="btn btn-primary"> <span class="glyphicon glyphicon-star"></span> Rubrics</a></td>
       <td><a href="{{ url('/') }}/notification/{{ $p->id }}"  class="btn btn-success">  <span class="glyphicon glyphicon-comment"></span>Notification</a></td>
-      <td>  <button id="blur2" onclick="rejectproject( {{ $p->id }} )" class="btn btn-danger">  <span class="glyphicon glyphicon-trash"></span>Reject Project Group  </button>  <td>
+      <td>  <button id="blur2" onclick="rejectproject( {{ $p->id }} )" class="btn btn-danger">  <span class="glyphicon glyphicon-trash"></span>Reject Project Group  </button>  </td>
       @endif
 
       
