@@ -72,7 +72,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    <a href="/login"><i><br>BE Project Tracker<i></a>
+                    <a href="/home"><i><br>BE Project Tracker<i></a>
                 </div>
             </div>
         </div>
