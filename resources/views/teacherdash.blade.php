@@ -79,7 +79,7 @@
 
       @if($p->act==0)
       <td colspan="5"> <button id="blur1" onclick="approveproject( {{ $p->id }} )" class="btn btn-success btn-lg btn-block"> <span class="glyphicon glyphicon-ok"></span>Approve Project Group  </button> </td>
-      <td>  <button id="blur2" onclick="rejectproject( {{ $p->id }} )" class="btn btn-danger btn-lg btn-block ">  <span class="glyphicon glyphicon-trash"></span>Reject Project Group  </button>  <td>
+      <td>  <button id="blur2" onclick="rejectproject( {{ $p->id }} )" class="btn btn-danger btn-lg btn-block ">  <span class="glyphicon glyphicon-trash"></span>Reject Project Group  </button>  </td>
       @else
       <td><a href="{{ url('/') }}/task/{{ $p->id }}" class="btn btn-warning">  <span class="glyphicon glyphicon-triangle-right"></span>Task</a></td>
       <td><a href="{{ url('/') }}/stat/{{ $p->id }}"  class="btn btn-info">  <span class="glyphicon glyphicon-hourglass"></span>Statistics</a></td>
