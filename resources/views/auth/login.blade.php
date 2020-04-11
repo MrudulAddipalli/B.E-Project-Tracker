@@ -76,7 +76,7 @@
 
                     </form>
 
-                    <hr><hr>
+                    <hr>
                     <center>
                         <a class="btn btn-primary" href="{{ url('/') }}/createproject">Project Group Registration</a>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
