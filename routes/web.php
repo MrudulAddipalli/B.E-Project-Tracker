@@ -31,65 +31,42 @@ Route::get('/reset', function () {
 //for student and teacher both
 Route::post('/reset', function(Request $req){
 
-	if(isset(  $req['email'] ) )
+	$email = strip_tags($req['email']);
+
+	if(isset( $req['email'] ) )
 	{
-
 		//uid student
-
-		if( is_numeric(strip_tags($req['email'])) )
+		if( is_numeric($email) )
 		{			
 			//find  and send otp to all group members
-
-			$result = DB::table('users')->select('id')->where('email','=',strip_tags($req['email']))->first();
+			$result = DB::table('users')->select('id')->where('email','=',$email)->first();
 			if($result==null){ return redirect('/reset?err=Entered UID Not Found'); }
-		
-			$id = $result->id;
-
-			$user  = App\User::find( strip_tags( $id ) );   // this find  only works for primary keys only so $id is found first
-			
+			$user  = App\User::find($result->id);   // this find  only works for primary keys only so $id is found first
 			$otp = rand(1000,9999) ;
 			$user->ackey = X_ENCRYPT($otp) ; //otp
-			$user->save();
-
-			$user = App\User::where('id','=', strip_tags( $id ) )->first();
-		
 			sendmail($user->email_gm1 , "Password Change Request" , "Password Change OTP Is ".$otp);
 			sendmail($user->email_gm2 , "Password Change Request" , "Password Change OTP Is ".$otp);
 			sendmail($user->email_gm3 , "Password Change Request" , "Password Change OTP Is ".$otp);
 			sendmail($user->email_gm4 , "Password Change Request" , "Password Change OTP Is ".$otp);
-
-			$data = array('email' => strip_tags($req['email']));
+			$user->save();
+			$data = array('email' => $email);
 			return view('reset2',$data);
-
 		}
 		else
 		{
-
 			//email id guide
-
-			if( !isValidEmail( strip_tags($req['email']) )  && strip_tags( $req['email'] )!="" ) {  return redirect('/reset?err=Entered Email Id Is Not Valid');   }
-
-			//send otp directly to strip_tags($req['email'])
-
-			$result = DB::table('users')->select('id')->where('email','=',strip_tags($req['email']))->first();
+			if( !isValidEmail( $email )  && $email!="" ) {  return redirect('/reset?err=Entered Email Id Is Not Valid');   }
+			//send otp directly to $email
+			$result = DB::table('users')->select('id')->where('email','=',$email)->first();
 			if($result==null){ return redirect('/reset?err=Entered Email Id Not Found'); }
-
-			$id = $result->id;
-
-			$user  = App\User::find( $id);   // this find  only works for primary keys only so $id is found first
-			
+			$user  = App\User::find($result->id);   // this find  only works for primary keys only so $id is found first
 			$otp = rand(1000,9000) ;
 			$user->ackey = X_ENCRYPT($otp) ; //otp
-
 			$user->act = 0; // again ask for submit access // why if submit access is entered and forgot password is done then?
-
+			sendmail( $email , "Password Change Request" , "Password Change OTP Is ".$otp);
 			$user->save();
-
-			sendmail(strip_tags( $req['email']) , "Password Change Request" , "Password Change OTP Is ".$otp);
-
-			$data = array('email' => strip_tags($req['email']));
+			$data = array('email' => $email);
 			return view('reset2',$data);
-
 		}
 	}
 
@@ -98,77 +75,42 @@ Route::post('/reset', function(Request $req){
 //for student and teacher both
 Route::post('/reset2', function(Request $req){
 
+	$email = strip_tags($req['email']);
+
 	if(isset($req))
 	{
-
 		//here can be a UID
-
 		//for email id which is hidden
-
-		if( ! is_numeric(strip_tags($req['email'])) ) 
+		if( ! is_numeric($email) ) 
 		{   
-			if( !isValidEmail( strip_tags($req['email']) )  && strip_tags( $req['email'] )!="" ) 
-				{  
-					return Response::json(array('status'=>'error', 'errors'=>['Email Id Invalid.']),422); 
-				}   
+			if( !isValidEmail( $email )  && $email!="" ) 
+				{  return Response::json(array('status'=>'error', 'errors'=>['Email Id Invalid.']),422); }   
 		}
 
-
-
-
-		$result = DB::table('users')->select('id')->where('email','=',strip_tags($req['email']))->first();
-
+		$result = DB::table('users')->select('id')->where('email','=',$email)->first();
 		if($result==null)
 		{ 
-			//return redirect('/reset2?err=Incorrect Attempt'); 
 			return Response::json(array('status'=>'error', 'errors'=>['Incorrect Attempt.']),422); // 'Incorrect Attempt.' becaue this email id is hidden
 		}
-
-
 		if(strip_tags($req['password'])==strip_tags($req['password_confirmation']))
-		{
-			
+		{	
 			$id = $result->id;
-
 			$user  = App\User::find( $id);   // this find  only works for primary keys only so $id is found first
 			//check otp 
-			
-
 			$decrypted_ackey = X_DECRYPT( $user->ackey );
-
-
 			if( $decrypted_ackey  == strip_tags($req['otp']) )
 			{
 				//change password	
-
-
 				if( strlen( strip_tags( $req['password'] ) )  <  8 )
-				{
-					return Response::json(array('status'=>'error', 'errors'=>['Password Must Be Of At Least 8 Charaters.']),422);
-				}
+				{ return Response::json(array('status'=>'error', 'errors'=>['Password Must Be Of At Least 8 Charaters.']),422);  }
 				else
-				{
-					$user->password = bcrypt(strip_tags($req['password']));  
-				}
-
-			
+				{ $user->password = bcrypt(strip_tags($req['password']));  }
 				$user->save();
-
-
 				return (array( 'status'=>'success' , 'url'=> '/login'));
-
-			}
-			else
-			{
-				//return redirect('/reset2?err=Incorrect OTP');
-				return Response::json(array('status'=>'error', 'errors'=>['Incorrect OTP.']),422);
-			}
+			} 
+			else { return Response::json(array('status'=>'error', 'errors'=>['Incorrect OTP.']),422);  }
 		}		
-		else
-		{
-			//return redirect('/reset2?err=Mismatch In Passwords And Confirm Password');
-			return Response::json(array('status'=>'error', 'errors'=>['Mismatch In Password And Confirm Password.']),422);
-		}
+		else { return Response::json(array('status'=>'error', 'errors'=>['Mismatch In Password And Confirm Password.']),422); }
 	
 
 	}
@@ -195,7 +137,9 @@ Route::get('/task/{id}', function ($id,Request $req){
 	//only for teacher if student found , illegal
 	if(Auth::user()->type==1){ return redirect('/illegal'); }
 
-
+		//checcking if guide is activated or not
+		$userx = DB::table('users')->select('act')->where('id','=',Auth::user()->id)->first();
+		if( $userx->act == 0 ) {  return redirect('/submitaccess'); }
 	
 		if ( isset($req['filter']) ) 
 		{
@@ -208,34 +152,20 @@ Route::get('/task/{id}', function ($id,Request $req){
 			if(!$task){ return redirect('/illegal'); }
 		}
 
-
-
-		//checcking if guide is activated or not
-		$userx = DB::table('users')->select('act')->where('id','=',Auth::user()->id)->first();
-		if( $userx->act == 0 ) {  return redirect('/submitaccess'); }
-
-
-
         $project = App\User::where('id','=',  strip_tags( $id ) )->where('project_guide','=',Auth::user()->id)->where('act','=',1)->first();		
 		if(!$project){ return redirect('/illegal'); }
 
 		$data = array('task' => $task,'pid'=> strip_tags( $id ) , 'project_name'=>$project->project_title , 'name_gm1'=>$project->name_gm1 , 'name_gm2'=>$project->name_gm2 , 'name_gm3'=>$project->name_gm3 , 'name_gm4'=>$project->name_gm4 , 'email_gm1'=>$project->email_gm1 , 'email_gm2'=>$project->email_gm2 , 'email_gm3'=>$project->email_gm3 , 'email_gm4'=>$project->email_gm4   );
-
     	return view('teachertask',$data);
-
-
 });
 
 //teacher chart
 Route::get('/stat/{id}',function($id){
 
 	if( ! Auth::check() )  {   return redirect('/login');  }
-
 	if( ! is_numeric( strip_tags( $id )  )  ) {  return redirect('/illegal'); }
 	//student - if student tries to access this page
 	if(Auth::user()->type==1) {  return redirect('/illegal'); }
-
-
 	//for guide
     if(Auth::user()->type==0)
 	{
@@ -243,13 +173,9 @@ Route::get('/stat/{id}',function($id){
 		if(!$project){ return redirect('/illegal'); }
 	}
 
-
 	//checcking if guide is activated or not
 	$userx = DB::table('users')->select('act')->where('id','=',Auth::user()->id)->first();
 	if( $userx->act == 0 ) {  return redirect('/submitaccess'); }
-
-
-
 
 	$task = App\Task::where('project','=', strip_tags( $id ) )->get();
 	if(!$task){ return redirect('/illegal'); }
@@ -764,8 +690,8 @@ Route::get('/verify/{tid}',function($tid)
 		}
 			
 	//check if project guide is active or not
-	$userx = DB::table('users')->select('act')->where('id','=',Auth::user()->id)->first();
-	$guidex = DB::table('users')->select('act')->where('id','=',$user->project_guide)->first();
+	$userx = DB::table('users')->select('act','project_guide')->where('id','=',Auth::user()->id)->first();
+	$guidex = DB::table('users')->select('act')->where('id','=',$userx->project_guide)->first();
     if( $userx->act == 0 ) 
 	{  
 		return redirect('/verifyerror?error_val=Currently Your Project Guide Has Not Approved Your Request.<br>Contact Your Project Guide Or Change Your Project Guide.' );
@@ -1554,7 +1480,7 @@ Route::post('/editprofile', function(Request $req){
 
 								}
 
-								//$user->act = 1;
+								$user->act = 0;
 
 								$user->save();
 
@@ -1735,7 +1661,7 @@ Route::get('/activateall',function(){
 	if(Auth::user()->type==1 || Auth::user()->type==0 ) {  return redirect('/illegal'); }
 
 
-	$all_guides = App\User::where('type','=',0)->where('act','=',0)->get()->toArray();
+	$all_guides = App\User::select('id')->where('type','=',0)->where('act','=',0)->get()->toArray();
 	if(!$all_guides){  return redirect('/nodatafound');	}
 
 
@@ -1755,7 +1681,7 @@ Route::get('/deactivateall',function(){
 	if(Auth::user()->type==1 || Auth::user()->type==0 ) {  return redirect('/illegal'); }
 
 
-	$all_guides = App\User::where('type','=',0)->where('act','=',1)->get()->toArray();
+	$all_guides = App\User::select('id')->where('type','=',0)->where('act','=',1)->get()->toArray();
 	if(!$all_guides){  return redirect('/nodatafound');	}
 
 
@@ -2159,13 +2085,11 @@ Route::get('/rubrics/{pid}',function($pid){
 	$rubrics = DB::table('rubrics')->where('project_id','=', strip_tags( $pid ) )->first();
 	if(!$rubrics){ return redirect('/illegal'); }
 
-	$task = App\Task::where('project','=',Auth::user()->id)->orderBy('id','DESC')->get();
-
+	$task = App\Task::where('project','=',$pid)->orderBy('id','DESC')->get();
 	if(!$task){ return redirect('/illegal'); }
 
 	$project = App\User::where('project_guide','=',Auth::user()->id)->where('act','=',1)->first();
 	if(!$project){ return redirect('/illegal'); }
-
 
 	$sem7 = ( $rubrics->sem7_P1 + $rubrics->sem7_P2 + $rubrics->sem7_P3 + $rubrics->sem7_P4 + $rubrics->sem7_P5 ) ;
 	$sem8 = ( $rubrics->sem8_P1 + $rubrics->sem8_P2 + $rubrics->sem8_P3 + $rubrics->sem8_P4 + $rubrics->sem8_P5 ) ;
@@ -2447,20 +2371,6 @@ function X_DECRYPT($text)
 
 Route::get('/s',function()
 {
-
-
-	$encrypter = app('Illuminate\Contracts\Encryption\Encrypter');
-
-	$encrypted = $encrypter->encrypt('Ab123123');
-	//$encrypted = $encrypter->encrypt('Admin@#$_=+');
-
-	dd($encrypted,$encrypter->decrypt($encrypted));
-
-	$decrypted = $encrypter->decrypt('eyJpdiI6IjRkK0s4bm1yemVBSjVqbm03bk9pSEE9PSIsInZhbHVlIjoiZU5tV2FDWGc0Tkd0cnVBa0JqK1wvUjc2azdQWElXaXgrRFB0ajhDZ1JIelE9IiwibWFjIjoiNjY2ZGM1NjkzOWQxMjJjNTc4NjliYjMwZDQxZjdiNzZmZjI3ZjdjNjllNzcyMzlkY2ZmNTUxOWI3OTZjMDM1OSJ9');
-	dd($decrypted);
-	
-	//$decrypted = $encrypter->decrypt($result->passkey);
-	//dd($decrypted,$result->passkey);
 
 });
 
