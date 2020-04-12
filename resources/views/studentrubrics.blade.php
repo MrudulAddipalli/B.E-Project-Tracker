@@ -12,7 +12,7 @@ $smks=0;
 foreach ($task as $t) 
 {
 
-  /*if ($t->status==1) {
+  if ($t->status==1) {
     $ver=$ver+1;
   }
   if ($t->status==2) {
@@ -25,7 +25,7 @@ foreach ($task as $t)
   }
   if ($t->status==0) {
     $ong=$ong+1;
-  }*/
+  }
 
   $all = $all+1;
 }
