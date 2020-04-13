@@ -54,7 +54,7 @@
 <div class="wrapper">
     <header class="main-header">
     <!-- Logo -->
-    <a href="/home" class="logo">
+    <a id="homeanchor" href="/home" class="logo">
       <span class="logo-lg">BE Project Tracker</span>
     </a>
 
@@ -62,7 +62,6 @@
     <nav class="navbar navbar-static-top">
       <!-- Sidebar toggle button-->
       <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Toggle navigation</span>
       </a>
       <!-- Navbar Right Menu -->
       <div class="navbar-custom-menu">
