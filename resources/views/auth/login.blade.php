@@ -22,7 +22,7 @@
                 <div class="panel-heading">Login</div>
 
                 <div class="panel-body">
-                    <form class="form-horizontal" method="POST" action="{{ route('login') }}">
+                    <form id="loginform" class="form-horizontal" method="POST" action="{{ route('login') }}">
                         {{ csrf_field() }}
 
                         <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
@@ -65,7 +65,7 @@
 
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-                                    <button type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-log-in"></span>Login
+                                    <button id="submitbtn"  type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-log-in"></span>Login
                                     </button>
 
                                </center>
